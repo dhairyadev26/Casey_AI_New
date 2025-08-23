@@ -1,6 +1,8 @@
 // BugzyAI Firebase Authentication Service
 // This file provides a centralized Firebase authentication service for the entire application
 
+import dotenv from 'dotenv';
+dotenv.config();
 import { firebaseConfig, authConfig } from './firebase-config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { 

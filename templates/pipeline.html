@@ -29,6 +29,7 @@
           <nav class="nav">
             <a href="/" class="nav-link">Home</a>
             <a href="/pipeline" class="nav-link active">Pipeline</a>
+            <div id="navProfileContainer" style="display:inline-flex; align-items:center; gap:8px; margin-left:12px;"></div>
           </nav>
         </div>
       </div>
@@ -595,5 +596,46 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+      // Render profile pill or login link in pipeline header
+      (function() {
+        function initialsFromName(name) {
+          if (!name) return '';
+          var parts = name.trim().split(/\s+/);
+          if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+          return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        }
+
+        function renderProfile(name) {
+          var container = document.getElementById('navProfileContainer');
+          if (!container) return;
+          var initials = initialsFromName(name.indexOf('@') === -1 ? name : name.split('@')[0]);
+          container.innerHTML = `<a href="/profile" class="profile-pill-link" title="Profile"><span class="profile-pill">${initials}</span></a>`;
+        }
+
+        function renderLogin() {
+          var container = document.getElementById('navProfileContainer');
+          if (!container) return;
+          container.innerHTML = `<a href="/login" class="nav-link">Login</a>`;
+        }
+
+        try {
+          var raw = localStorage.getItem('userData');
+          if (raw) {
+            var ud = JSON.parse(raw);
+            if (ud && (ud.displayName || ud.email)) { renderProfile(ud.displayName || ud.email.split('@')[0]); return; }
+          }
+        } catch (e) {}
+
+        try {
+          if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+            var st = window.bugzyAuth.getStoredUserData();
+            if (st && (st.displayName || st.email)) { renderProfile(st.displayName || st.email.split('@')[0]); return; }
+          }
+        } catch (e) {}
+
+        renderLogin();
+      })();
+    </script>
   </body>
 </html>

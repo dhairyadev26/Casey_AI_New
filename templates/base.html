@@ -32,6 +32,13 @@
           <a href="/pricing" class="nav-link">Pricing</a>
           <a href="/#contact" class="nav-link">Contact</a>
           <a href="/pipeline" class="nav-btn">Start Testing</a>
+
+          <!-- Profile / Login container -->
+          <div id="navProfileContainer" class="nav-link" style="display:inline-flex;align-items:center;"></div>
+          <!-- User greeting -->
+          <div id="userGreetingContainer" class="nav-user">
+            <span id="userGreeting" class="user-greeting hidden">Hi, <span id="userName">User</span></span>
+          </div>
         </div>
       </div>
     </nav>
@@ -110,5 +117,105 @@
     </footer>
 
     {% block extra_scripts %}{% endblock %}
+    <script>
+      // Populate user greeting
+      (function() {
+        function setGreeting(name) {
+          var greeting = document.getElementById('userGreeting');
+          var nameSpan = document.getElementById('userName');
+          if (!greeting || !nameSpan) return;
+          nameSpan.textContent = name || 'User';
+          greeting.classList.remove('hidden');
+        }
+
+        try {
+          var raw = localStorage.getItem('userData');
+          if (raw) {
+            var ud = JSON.parse(raw);
+            if (ud && (ud.displayName || ud.email)) {
+              setGreeting(ud.displayName || ud.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {}
+
+        try {
+          if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+            var stored = window.bugzyAuth.getStoredUserData();
+            if (stored && (stored.displayName || stored.email)) {
+              setGreeting(stored.displayName || stored.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {}
+      })();
+
+      // Allow auth scripts to refresh greeting
+      window.updateUserGreeting = function(user) {
+        try {
+          var name = null;
+          if (user) {
+            name = user.displayName || (user.email && user.email.split('@')[0]);
+          } else {
+            var raw = localStorage.getItem('userData');
+            if (raw) {
+              var ud = JSON.parse(raw);
+              name = ud && (ud.displayName || (ud.email && ud.email.split('@')[0]));
+            }
+          }
+          var greeting = document.getElementById('userGreeting');
+          var nameSpan = document.getElementById('userName');
+          if (name && greeting && nameSpan) {
+            nameSpan.textContent = name;
+            greeting.classList.remove('hidden');
+          } else if (greeting) {
+            greeting.classList.add('hidden');
+          }
+        } catch (e) {}
+      };
+
+      // Render profile pill or login link
+      (function() {
+        function initialsFromName(name) {
+          if (!name) return '';
+          var parts = name.trim().split(/\s+/);
+          if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+          return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        }
+        function renderProfile(name) {
+          var container = document.getElementById('navProfileContainer');
+          if (!container) return;
+          var initials = initialsFromName(name.indexOf('@') === -1 ? name : name.split('@')[0]);
+          container.innerHTML = `<a href="/profile" class="profile-pill-link" title="Profile"><span class="profile-pill">${initials}</span></a>`;
+        }
+        function renderLogin() {
+          var container = document.getElementById('navProfileContainer');
+          if (container) container.innerHTML = `<a href="/login" class="nav-link">Login</a>`;
+        }
+
+        try {
+          var raw = localStorage.getItem('userData');
+          if (raw) {
+            var ud = JSON.parse(raw);
+            if (ud && (ud.displayName || ud.email)) {
+              renderProfile(ud.displayName || ud.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {}
+
+        try {
+          if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+            var st = window.bugzyAuth.getStoredUserData();
+            if (st && (st.displayName || st.email)) {
+              renderProfile(st.displayName || st.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {}
+
+        renderLogin();
+      })();
+    </script>
   </body>
 </html>

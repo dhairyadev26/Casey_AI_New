@@ -18,6 +18,10 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 def index():
     return render_template('index.html')
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 @app.route('/pipeline')
 def pipeline():
     return render_template('pipeline.html')
@@ -221,6 +225,81 @@ def download_results():
         document.save(file_stream)
         file_stream.seek(0)
         return send_file(file_stream, as_attachment=True, download_name="test_execution_results.docx")
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# Authentication API endpoints
+@app.route('/api/user/login', methods=['POST'])
+def user_login():
+    """API endpoint for storing user login data"""
+    try:
+        data = request.get_json()
+        
+        # Here you could store user data in a database
+        # For now, we'll just acknowledge the login
+        user_data = {
+            'uid': data.get('uid'),
+            'email': data.get('email'),
+            'displayName': data.get('displayName'),
+            'loginTime': data.get('loginTime'),
+            'isGuest': data.get('isGuest', False)
+        }
+        
+        # In a real application, you would:
+        # 1. Verify the Firebase token
+        # 2. Store user session in database
+        # 3. Return session token or user preferences
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'User login recorded',
+            'userData': user_data
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/user/logout', methods=['POST'])
+def user_logout():
+    """API endpoint for handling user logout"""
+    try:
+        # Here you could clear user session from database
+        # For now, we'll just acknowledge the logout
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'User logout successful'
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/user/profile', methods=['GET'])
+def get_user_profile():
+    """API endpoint for getting user profile data"""
+    try:
+        # In a real application, you would:
+        # 1. Verify the user token
+        # 2. Fetch user data from database
+        # 3. Return user preferences, test history, etc.
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Profile data retrieved',
+            'profile': {
+                'preferences': {
+                    'theme': 'dark',
+                    'defaultTestType': 'ui',
+                    'autoSave': True
+                },
+                'stats': {
+                    'testsGenerated': 0,
+                    'testsExecuted': 0,
+                    'successRate': 0
+                }
+            }
+        })
+        
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 

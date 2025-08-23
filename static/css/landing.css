@@ -127,14 +127,32 @@ body {
 .panel-nav {
   display: flex;
   gap: 28px;
+  align-items: center; /* align nav links and profile vertically */
+}
+
+/* small profile pill for authenticated users */
+.profile-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #6a54ff;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
 }
 .panel-link {
   color: #e9ebf3;
   text-decoration: none;
-  font-size: 12px;
-  letter-spacing: 2px;
-  opacity: 0.85;
+  font-size: 14px; /* increase size to align with profile pill */
+  letter-spacing: 1.6px;
+  opacity: 0.95;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 8px;
 }
 .panel-link:hover {
   opacity: 1;

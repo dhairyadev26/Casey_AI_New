@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Profile - BugzyAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <div class="container" style="padding-top: 100px; max-width:900px; margin: 0 auto;">
+      <section class="profile-container">
+        <div class="profile-card" id="profileCard">
+          <div class="profile-top">
+            <div class="profile-avatar" id="profileAvatar">--</div>
+            <div class="profile-info">
+              <h2 id="profileName">Name</h2>
+              <p id="profileEmail" class="muted">email@example.com</p>
+            </div>
+          </div>
+
+          <div class="profile-body">
+            <div class="profile-stats">
+              <div class="stat">
+                <div class="stat-num" id="stat-tests-generated">0</div>
+                <div class="stat-label">Tests Generated</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num" id="stat-tests-executed">0</div>
+                <div class="stat-label">Tests Executed</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num" id="stat-success-rate">0%</div>
+                <div class="stat-label">Success Rate</div>
+              </div>
+            </div>
+
+            <div class="profile-actions">
+              <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+              <a href="/" class="btn btn-primary">Home</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      (function() {
+        function loadProfile() {
+          try {
+            var raw = localStorage.getItem('userData');
+            if (raw) {
+              var ud = JSON.parse(raw);
+                    document.getElementById('profileName').textContent = (ud.displayName || 'N/A');
+                    document.getElementById('profileEmail').textContent = (ud.email || 'N/A');
+                    // set avatar initials
+                    var avatar = document.getElementById('profileAvatar');
+                    if (avatar) {
+                      var nameForInitials = ud.displayName || (ud.email || '').split('@')[0] || '';
+                      var parts = (nameForInitials + '').trim().split(/\s+/);
+                      var initials = parts.length === 1 ? parts[0].substring(0,2) : (parts[0][0] + parts[parts.length-1][0]);
+                      avatar.textContent = initials.toUpperCase();
+                    }
+              return;
+            }
+          } catch (e) {}
+
+          try {
+            if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+              var st = window.bugzyAuth.getStoredUserData();
+              if (st) {
+                document.getElementById('profileName').textContent = (st.displayName || 'N/A');
+                document.getElementById('profileEmail').textContent = (st.email || 'N/A');
+                var avatar = document.getElementById('profileAvatar');
+                if (avatar) {
+                  var nameForInitials = st.displayName || (st.email || '').split('@')[0] || '';
+                  var parts = (nameForInitials + '').trim().split(/\s+/);
+                  var initials = parts.length === 1 ? parts[0].substring(0,2) : (parts[0][0] + parts[parts.length-1][0]);
+                  avatar.textContent = initials.toUpperCase();
+                }
+                return;
+              }
+            }
+          } catch (e) {}
+
+          // not signed in -> redirect to login
+          window.location.href = '/login';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+          loadProfile();
+          document.getElementById('logoutBtn').addEventListener('click', function() {
+            try {
+              if (window.bugzyAuth && typeof window.bugzyAuth.signOut === 'function') {
+                window.bugzyAuth.signOut();
+              } else {
+                localStorage.removeItem('userData');
+                localStorage.removeItem('authToken');
+              }
+            } catch (e) {
+              localStorage.removeItem('userData');
+              localStorage.removeItem('authToken');
+            }
+            setTimeout(function() { window.location.href = '/'; }, 200);
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

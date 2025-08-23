@@ -31,7 +31,7 @@
             <a href="#features" class="panel-link">FEATURES</a>
             <a href="#workflow" class="panel-link">WORKFLOW</a>
             <a href="#contact" class="panel-link">CONTACT</a>
-            <a href="/login" class="panel-link login-link">LOGIN</a>
+            <a href="/login" id="authActionLink" class="panel-link login-link">LOGIN</a>
           </nav>
         </div>
 
@@ -72,6 +72,46 @@
           </div>
         </div>
       </section>
+
+    <script>
+      // Toggle login -> profile icon (initials) on landing when authenticated
+      (function() {
+        function initialsFromName(name) {
+          if (!name) return '';
+          var parts = name.trim().split(/\s+/);
+          if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+          return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        }
+
+        function setProfileUI(displayNameOrEmail) {
+          var link = document.getElementById('authActionLink');
+          if (!link) return;
+          var name = displayNameOrEmail || '';
+          var initials = initialsFromName(name.indexOf('@') === -1 ? name : name.split('@')[0]);
+          link.innerHTML = `<span class="profile-pill" title="Profile">${initials}</span>`;
+          link.href = '/profile';
+          link.classList.remove('login-link');
+        }
+
+        try {
+          var raw = localStorage.getItem('userData');
+          if (raw) {
+            var ud = JSON.parse(raw);
+            if (ud && (ud.displayName || ud.email)) {
+              setProfileUI(ud.displayName || ud.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {}
+
+        try {
+          if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+            var st = window.bugzyAuth.getStoredUserData();
+            if (st && (st.displayName || st.email)) setProfileUI(st.displayName || st.email.split('@')[0]);
+          }
+        } catch (e) {}
+      })();
+    </script>
 
       <!-- Features Section -->
       <section id="features" class="section">

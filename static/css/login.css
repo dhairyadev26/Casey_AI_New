@@ -139,6 +139,22 @@ body {
     align-items: center;
 }
 
+/* User greeting in navbar */
+.nav-user {
+    display: flex;
+    align-items: center;
+}
+
+.user-greeting {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-left: 0.5rem;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
 .nav-link {
     color: var(--text-secondary);
     text-decoration: none;

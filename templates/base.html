@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}BugzyAI - Automated Test Generation & Runner{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/landing.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <a href="/" class="brand">
+          <i class="fas fa-robot" style="color: #ff6b6b; margin-right: 8px;"></i>
+          <span class="brand-name">Bugzy<span class="thin">AI</span></span>
+        </a>
+        <div class="nav-links">
+          <a href="/#features" class="nav-link">Features</a>
+          <a href="/#workflow" class="nav-link">Workflow</a>
+          <a href="/pricing" class="nav-link">Pricing</a>
+          <a href="/#contact" class="nav-link">Contact</a>
+          <a href="/pipeline" class="nav-btn">Start Testing</a>
+          <div id="navProfileContainer" class="nav-link" style="display:inline-flex;align-items:center;"></div>
+          <!-- User greeting will be injected here when logged in -->
+          <div id="userGreetingContainer" class="nav-user">
+            <span id="userGreeting" class="user-greeting hidden">Hi, <span id="userName">User</span></span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-top">
+          <div class="footer-section">
+            <h3 class="footer-heading">BugzyAI</h3>
+            <p class="footer-description">
+              Professional automated testing solutions that help teams deliver high-quality software faster.
+            </p>
+            <div class="footer-social">
+              <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h4 class="footer-subheading">Product</h4>
+            <div class="footer-links-column">
+              <a href="/#features">Features</a>
+              <a href="/#workflow">Workflow</a>
+              <a href="/pipeline">Test Pipeline</a>
+              <a href="/pricing">Pricing</a>
+              <a href="/integrations">Integrations</a>
+            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h4 class="footer-subheading">Company</h4>
+            <div class="footer-links-column">
+              <a href="/about">About Us</a>
+              <a href="/careers">Careers</a>
+              <a href="/blog">Blog</a>
+              <a href="/#contact">Contact</a>
+              <a href="/support">Support</a>
+            </div>
+          </div>
+          
+          <div class="footer-section">
+            <h4 class="footer-subheading">Legal</h4>
+            <div class="footer-links-column">
+              <a href="/privacy">Privacy Policy</a>
+              <a href="/terms">Terms of Service</a>
+              <a href="/security">Security</a>
+              <a href="/compliance">Compliance</a>
+              <a href="/cookies">Cookie Policy</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <div class="footer-bottom-left">
+            <p class="footer-text">
+              © 2025 BugzyAI. All rights reserved. Professional automated testing solutions.
+            </p>
+          </div>
+          <div class="footer-bottom-right">
+            <div class="footer-badges">
+              <span class="badge">SOC 2 Compliant</span>
+              <span class="badge">GDPR Ready</span>
+              <span class="badge">99.9% Uptime</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+    <script>
+      // Populate user greeting from stored user data (localStorage) or bugzyAuth if available
+      (function() {
+        function setGreeting(name) {
+          var container = document.getElementById('userGreetingContainer');
+          var greeting = document.getElementById('userGreeting');
+          var nameSpan = document.getElementById('userName');
+          if (!container || !greeting || !nameSpan) return;
+          nameSpan.textContent = name || 'User';
+          greeting.classList.remove('hidden');
+        }
+
+        // Try localStorage first
+        try {
+          var raw = localStorage.getItem('userData');
+          if (raw) {
+            var ud = JSON.parse(raw);
+            if (ud && (ud.displayName || ud.email)) {
+              setGreeting(ud.displayName || ud.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to read userData from localStorage', e);
+        }
+
+        // Fallback: if bugzyAuth is available and has stored data
+        try {
+          if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+            var stored = window.bugzyAuth.getStoredUserData();
+            if (stored && (stored.displayName || stored.email)) {
+              setGreeting(stored.displayName || stored.email.split('@')[0]);
+              return;
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        // If no user, keep greeting hidden
+      })();
+      // Expose a programmatic updater so auth scripts can refresh the greeting when auth state changes
+      window.updateUserGreeting = function(user) {
+        try {
+          var name = null;
+          if (!user) {
+            // try localStorage fallback
+            var raw = localStorage.getItem('userData');
+            if (raw) {
+              var ud = JSON.parse(raw);
+              name = ud && (ud.displayName || (ud.email && ud.email.split('@')[0]));
+            }
+          } else {
+            name = user.displayName || (user.email && user.email.split('@')[0]);
+          }
+          if (name) {
+            var nameSpan = document.getElementById('userName');
+            var greeting = document.getElementById('userGreeting');
+            nameSpan.textContent = name;
+            greeting.classList.remove('hidden');
+          } else {
+            // hide if no user
+            var greeting = document.getElementById('userGreeting');
+            if (greeting) greeting.classList.add('hidden');
+          }
+        } catch (e) {
+          console.warn('updateUserGreeting failed', e);
+        }
+      };
+      // Render login link or profile pill in navbar
+      (function() {
+        function initialsFromName(name) {
+          if (!name) return '';
+          var parts = name.trim().split(/\s+/);
+          if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+          return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        }
+
+        function renderProfile(name) {
+          var container = document.getElementById('navProfileContainer');
+          if (!container) return;
+          var initials = initialsFromName(name.indexOf('@') === -1 ? name : name.split('@')[0]);
+          container.innerHTML = `<a href="/profile" class="profile-pill-link" title="Profile"><span class="profile-pill">${initials}</span></a>`;
+        }
+
+        function renderLogin() {
+          var container = document.getElementById('navProfileContainer');
+          if (!container) return;
+          container.innerHTML = `<a href="/login" class="nav-link">Login</a>`;
+        }
+
+        try {
+          var raw = localStorage.getItem('userData');
+          if (raw) {
+            var ud = JSON.parse(raw);
+            if (ud && (ud.displayName || ud.email)) { renderProfile(ud.displayName || ud.email.split('@')[0]); return; }
+          }
+        } catch (e) {}
+
+        try {
+          if (window.bugzyAuth && typeof window.bugzyAuth.getStoredUserData === 'function') {
+            var st = window.bugzyAuth.getStoredUserData();
+            if (st && (st.displayName || st.email)) { renderProfile(st.displayName || st.email.split('@')[0]); return; }
+          }
+        } catch (e) {}
+
+        renderLogin();
+      })();
+    </script>
+  </body>
+</html>

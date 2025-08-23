@@ -65,6 +65,22 @@
     </script>
 </head>
 <body>
+        <script>
+            // If user is already signed in, redirect to home
+            (function() {
+                try {
+                    var raw = localStorage.getItem('userData');
+                    if (raw) {
+                        // user already signed in, navigate home
+                        window.location.href = '/';
+                    } else if (window.bugzyAuth && typeof window.bugzyAuth.isAuthenticated === 'function' && window.bugzyAuth.isAuthenticated()) {
+                        window.location.href = '/';
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            })();
+        </script>
     <!-- Animated Background -->
     <div class="background-animation">
         <div class="floating-shape shape-1"></div>

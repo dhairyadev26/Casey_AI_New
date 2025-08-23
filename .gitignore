@@ -4,3 +4,7 @@ __pycache__/
 
 # Ignore Python virtual environment
 venv/
+
+# Firebase configuration files
+static/js/firebase-config.js
+static/js/firebase-auth.js

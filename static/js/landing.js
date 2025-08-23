@@ -1,4 +1,6 @@
 // Landing Page JavaScript
+import { contactConfig } from './firebase-config.js';
+
 document.addEventListener("DOMContentLoaded", function () {
   wirePanelNav();
   wireCta();
@@ -138,9 +140,9 @@ function setupContactForm() {
     messagesDiv.innerHTML = '';
     
     try {
-      // Wait for Firebase to be ready
-      if (!window.firebaseDB) {
-        throw new Error('Firebase not initialized. Please refresh the page and try again.');
+      // Check if Firebase is available and configured
+      if (!contactConfig.isConfigured()) {
+        throw new Error('Contact form service not configured. Please try again later or contact us directly.');
       }
       
       // Get form data
@@ -149,7 +151,7 @@ function setupContactForm() {
         email: document.getElementById('email').value.trim(),
         company: document.getElementById('company').value.trim(),
         message: document.getElementById('message').value.trim(),
-        timestamp: window.firebaseServerTimestamp(),
+        timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         referrer: document.referrer || 'direct'
       };
@@ -159,11 +161,14 @@ function setupContactForm() {
         throw new Error('Please fill in all required fields.');
       }
       
-      // Add to Firestore
-      const docRef = await window.firebaseAddDoc(
-        window.firebaseCollection(window.firebaseDB, 'contacts'), 
-        formData
-      );
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        throw new Error('Please enter a valid email address.');
+      }
+      
+      // Submit to Firebase using centralized config
+      await contactConfig.submitContactForm(formData);
       
       // Success
       showMessage('success', 'Thank you! Your message has been sent successfully. We\'ll get back to you within 24 hours.');
@@ -171,7 +176,21 @@ function setupContactForm() {
       
     } catch (error) {
       console.error('Error submitting form:', error);
-      showMessage('error', error.message || 'There was an error sending your message. Please try again or contact us directly.');
+      
+      // User-friendly error messages
+      let errorMessage = 'There was an error sending your message. Please try again or contact us directly.';
+      
+      if (error.message.includes('not configured')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('required fields')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('valid email')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      showMessage('error', errorMessage);
     } finally {
       // Reset button state
       btnText.style.display = 'inline';

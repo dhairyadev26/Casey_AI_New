@@ -134,9 +134,27 @@ body {
   font-size: 12px;
   letter-spacing: 2px;
   opacity: 0.85;
+  transition: all 0.3s ease;
 }
 .panel-link:hover {
   opacity: 1;
+  color: #8b5cf6;
+}
+
+.panel-link.login-link {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  opacity: 1;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.panel-link.login-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  color: white;
 }
 
 /* Hero composition */

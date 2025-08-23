@@ -24,12 +24,14 @@
         <!-- Top bar inside panel -->
         <div class="panel-topbar">
           <a href="#" class="brand">
-            <span class="brand-name">Casey<span class="thin"> AI</span></span>
+            <i class="fas fa-robot" style="color: #8b5cf6; margin-right: 8px;"></i>
+            <span class="brand-name">Bugzy<span class="thin">AI</span></span>
           </a>
           <nav class="panel-nav">
             <a href="#features" class="panel-link">FEATURES</a>
             <a href="#workflow" class="panel-link">WORKFLOW</a>
             <a href="#contact" class="panel-link">CONTACT</a>
+            <a href="/login" class="panel-link login-link">LOGIN</a>
           </nav>
         </div>
 
@@ -343,6 +345,41 @@
         </p>
       </div>
     </footer>
+
+    <!-- Firebase SDKs for Contact Form -->
+    <script type="module">
+        // Import Firebase configuration
+        import { firebaseConfig } from '{{ url_for("static", filename="js/firebase-config.js") }}';
+        
+        // Import Firebase SDKs
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js';
+
+        try {
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const analytics = getAnalytics(app);
+
+            // Make Firebase available globally for contact form
+            window.firebaseDB = db;
+            window.firebaseCollection = collection;
+            window.firebaseAddDoc = addDoc;
+            window.firebaseServerTimestamp = serverTimestamp;
+            
+            console.log("✅ Firebase initialized for contact form");
+            console.log("🔥 Firebase project: bugzyai");
+        } catch (error) {
+            console.error("❌ Firebase initialization failed:", error);
+            
+            // Create mock functions to prevent contact form errors
+            window.firebaseDB = null;
+            window.firebaseCollection = () => {};
+            window.firebaseAddDoc = () => Promise.reject(new Error('Firebase not configured'));
+            window.firebaseServerTimestamp = () => new Date();
+        }
+    </script>
 
     <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
   </body>
